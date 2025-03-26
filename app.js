@@ -1,18 +1,16 @@
-const express = require('express');
+import express from 'express';
+import cors from 'cors';
+import authRouter from './routes/auth.js';
 const app = express();
-const PORT = 3000;
-const HOST = 'http://localhost'
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 // Auth Routes
-app.post('/auth/register', (req, res) => {
-    res.send('You are registered');
-});
-
-app.post('/auth/login', (req, res) => {
-    res.send('You are logged in');
+app.use('/auth', authRouter);
+app.use('/', (req, res) => {
+    res.send('Welcome to real-time document editor.')
 });
 
 // Users routes
@@ -20,6 +18,8 @@ app.get('/users', () => {});
 app.delete('/users/:id', () => {});
 
 // Start server
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'http://localhost';
 app.listen(PORT, () => {
     console.log(`Server running at ${HOST}:${PORT}`);
 });
