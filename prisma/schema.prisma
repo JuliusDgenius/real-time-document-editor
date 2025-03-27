@@ -18,6 +18,7 @@ model User {
   email   String    @unique
   password_hash String
   role    Role      @default(USER)
+  createdAt DateTime  @default(now())
  
   // relationships
   ownedDocs Document[] @relation("DocumentOwner")
@@ -30,7 +31,7 @@ model Document {
   content   String
   createdAt DateTime    @default(now())
   owner_id  Int
-  owner     User        @relation("DocumentOwner", fields: [owner_id], references: [id])
+  owner     User  @relation("DocumentOwner", fields: [owner_id], references: [id], onDelete: Cascade)
   sharedWith   DocumentShare[]  // Documents shared with users
 }
 
@@ -38,8 +39,8 @@ model DocumentShare {
   document_id  Int
   user_id      Int
   permission   Permission   @default(view)
-  document     Document  @relation(fields: [document_id], references: [id])
-  user         User    @relation(fields: [user_id], references: [id])
+  document     Document  @relation(fields: [document_id], references: [id], onDelete: Cascade)
+  user         User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([document_id, user_id]) // Composite primary key
 }

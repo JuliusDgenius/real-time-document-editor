@@ -87,6 +87,9 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
       }
     });
 
+    // Broadcast changes via WebSocket
+    io.to(req.params.id).emit('document-update', updatedDoc.content);
+
     res.json(updatedDoc);
   });
 
