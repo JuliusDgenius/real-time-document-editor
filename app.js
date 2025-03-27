@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.js';
+import documentRouter from './routes/document.js';
 const app = express();
 
 // Middleware
@@ -9,13 +10,13 @@ app.use(express.json());
 
 // Auth Routes
 app.use('/auth', authRouter);
-app.use('/', (req, res) => {
-    res.send('Welcome to real-time document editor.')
-});
 
 // Users routes
 app.get('/users', () => {});
 app.delete('/users/:id', () => {});
+
+// Document routes
+app.use('/documents', documentRouter);
 
 // Start server
 const PORT = process.env.PORT || 3000;
