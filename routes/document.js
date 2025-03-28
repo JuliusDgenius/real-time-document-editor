@@ -6,7 +6,35 @@ import { io } from '../app.js';
 
 const documentRouter = express.Router();
 
-// Create a document
+/**
+ * @swagger
+ * tags:
+ *   name: Documents
+ *   description: Document management
+ */
+
+/**
+ * @swagger
+ * /documents/create-document:
+ *  post:
+ *     summary: Create new document
+ *     tags: [Documents]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/DocumentCreate'
+ *     responses:
+ *       201:
+ *         description: Document created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Document'
+ */
 documentRouter.post('/create-document', authenticateToken, async (req, res) => {
     try {
       const { title, content } = req.body;
@@ -31,7 +59,24 @@ documentRouter.post('/create-document', authenticateToken, async (req, res) => {
     }   
 });
 
-// Get all documents, both owned and shared
+/**
+ * @swagger
+ * /documents/documents:
+ *   get:
+ *     summary: Get all accessible documents
+ *     tags: [Documents]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of documents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Document'
+ */
 documentRouter.get('/documents', authenticateToken, async (req, res) => {
   const documents = await prisma.document.findMany({
     where: {
@@ -44,7 +89,30 @@ documentRouter.get('/documents', authenticateToken, async (req, res) => {
   res.status(200).json(documents);
 });
 
-// Get a single document
+/**
+ * @swagger
+ * /documents/{id}:
+ *   get:
+ *     summary: Get document by ID
+ *     tags: [Documents]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Document details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Document'
+ *       403:
+ *         description: Unauthorized access
+ */
 documentRouter.get('/:id', authenticateToken, async (req, res) => {
     const document = await prisma.document.findUnique({
         where: {
@@ -63,7 +131,37 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
     res.status(200).json(document);
   });
 
-  // Update a document (owner or edit-permission users)
+  /**
+  * @swagger
+  * /documents/edit/{id}:
+ *   put:
+ *     summary: Update document content
+ *     tags: [Documents]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/DocumentUpdate'
+ *     responses:
+ *       200:
+ *         description: Updated document
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Document'
+ *       409:
+ *         description: Version conflict
+ * 
+ */
   documentRouter.put('/edit/:id', authenticateToken, async (req, res) => {
     // Check permissin first
     const document = await prisma.document.findFirst({
@@ -100,7 +198,29 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
     res.json(updatedDoc);
   });
 
-  // Delete a document
+  /**
+ * @swagger
+ * /documents/{id}:
+ *   delete:
+ *     summary: Delete a document
+ *     tags: [Documents]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the document to delete
+ *     responses:
+ *       204:
+ *         description: Document deleted successfully
+ *       403:
+ *         description: Not document owner
+ *       404:
+ *         description: Document not found
+ */
   documentRouter.delete('/:id', authenticateToken, async (req, res) => {
     const document = await prisma.document.findFirst({
       where: { id: parseInt(req.params.id), owner_id: req.user.id }
@@ -117,7 +237,37 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
     res.status(204).end();
   });
 
-  // Share document with other users
+  /**
+ * @swagger
+ * /documents/{id}/share:
+ *   post:
+ *     summary: Share document with another user via email
+ *     tags: [Documents]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the document to share
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ShareRequest'
+ *     responses:
+ *       201:
+ *         description: Document shared successfully
+ *       400:
+ *         description: Invalid input (e.g., invalid permission)
+ *       403:
+ *         description: User is not the document owner
+ *       404:
+ *         description: Target user not found
+ */
   documentRouter.post('/:id/share', authenticateToken, async (req, res) => {
     const { email, permission } = req.body;
     if (!email || !permission) {

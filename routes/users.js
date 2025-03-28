@@ -5,7 +5,40 @@ import { Role } from '@prisma/client';
 
 const userRouter = express.Router();
 
-// Get all users (Admin only)
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management (admin only)
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management (admin only)
+ */
+
+/**
+ * @swagger
+ * /users/users:
+ *   get:
+ *     summary: Get all users (admin only)
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Requires admin role
+ */
 userRouter.get(
     '/users',
     authenticateToken,
@@ -26,7 +59,28 @@ userRouter.get(
       }
 });
 
-// Delete a user (Admin only)
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete user (admin only)
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       204:
+ *         description: User deleted
+ *       403:
+ *         description: Cannot delete self
+ *       404:
+ *         description: User not found
+ */
 userRouter.delete(
     '/:id',
     authenticateToken, authorizeRole('ADMIN'),

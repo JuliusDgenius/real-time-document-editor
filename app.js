@@ -6,6 +6,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import userRouter from './routes/users.js';
 import prisma from './prismaClient.js';
+import { swaggerUi, specs } from './swagger.js';
 
 const app = express();
 const httpServer = createServer(app); // Create a HTTP server
@@ -13,6 +14,15 @@ export const io = new Server(httpServer, {
     cors: { engine: '*' // Allow all origins for now
     }
 });
+
+// Serve Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+// Serve OpenAPI spec as JSON
+app.get('/api-docs-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(specs);
+  });
 
 // Handle document rooms and real-time updates
 io.on('connection', (socket) => {
