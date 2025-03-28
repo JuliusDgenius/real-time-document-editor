@@ -41,9 +41,9 @@ authRouter.post('/register', async (req, res) => {
       },
     });
 
-    // Generate token
-    const token = await generateToken(user);
-    res.status(201).json({ token });
+     const {password_hash, ...userNoPass} = user;
+
+    res.status(201).json(userNoPass);
     } catch (error) {
       res.status(400).json({ error: "Registration failed." })
     }
@@ -54,11 +54,11 @@ authRouter.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!password) {
-    res.status(400).json({ error: "Password required" })
+    return res.status(400).json({ error: "Password required" })
   }
 
   if (!validateEmail(email)) {
-    res.status(400).json({ error: "Email missing or invalid format" })
+    return res.status(400).json({ error: "Email missing or invalid format" })
   }
 
 // Find user
@@ -67,13 +67,13 @@ const user = await prisma.user.findUnique({
 });
 
 if (!user) {
-  res.status(401).json({ error: "Invalid credentials." });
+  return res.status(401).json({ error: "Invalid credentials." });
 }
 
 // Verify password, if user is presnt
 const isValid = await comparePassword(password, user.password_hash);
 if (!isValid) {
-    res.status(401).json({ error: "Invalid credentials."});
+    return res.status(401).json({ error: "Invalid credentials."});
 }
 
 // Generate token

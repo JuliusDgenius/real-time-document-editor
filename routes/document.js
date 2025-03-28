@@ -2,6 +2,7 @@ import express from 'express';
 import prisma from '../prismaClient.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js'
 import { Permission } from '@prisma/client';
+import { io } from '../app.js';
 
 const documentRouter = express.Router();
 
@@ -37,7 +38,7 @@ documentRouter.get('/documents', authenticateToken, async (req, res) => {
         OR: [
             { owner_id: req.user.id },
             { sharedWith: { some: { user_id: req.user.id }} } // shared with user
-        ]
+        ]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
     }
   })
   res.status(200).json(documents);
@@ -63,7 +64,7 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
   });
 
   // Update a document (owner or edit-permission users)
-  documentRouter.put('/:id', authenticateToken, async (req, res) => {
+  documentRouter.put('/edit/:id', authenticateToken, async (req, res) => {
     // Check permissin first
     const document = await prisma.document.findFirst({
       where: {
@@ -79,11 +80,17 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: "Unauthorized" });
     }
 
+    // Check version to help with basic conflict resolution
+    if (document.version !== req.body.version) {
+      return res.status(409).json({ error: "Document version mismatch" });
+    }
+
     const updatedDoc = await prisma.document.update({
       where: { id: parseInt(req.params.id) },
       data: {
         title: req.body.title,
-        content: req.body.content
+        content: req.body.content,
+        version: req.body.version + 1
       }
     });
 
@@ -125,7 +132,7 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
       }
     });
     if (!document) {
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(404).json({ error: "No document found" });
     }
 
     // Find the user to share to
