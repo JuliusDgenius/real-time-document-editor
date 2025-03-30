@@ -53,7 +53,8 @@ userRouter.get(
             createdAt: true
           }
         });
-        res.json(users);
+        const usersCount = await prisma.user.count();
+        res.json({ users: users, count: usersCount });
       } catch (error) {
         res.status(500).json({ error: "Failed to fetch users", details: error.message })
       }

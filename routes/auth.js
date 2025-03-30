@@ -104,9 +104,10 @@ authRouter.post('/register', async (req, res) => {
             },
         });
 
+        const token = await generateToken(user);
         const { password_hash, ...userNoPass } = user;
 
-        res.status(201).json(userNoPass);
+        res.status(201).json({ user: userNoPass, token: token });
     } catch (error) {
         res.status(400).json({ error: "Registration failed." });
     }
