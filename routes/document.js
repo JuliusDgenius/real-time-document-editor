@@ -2,7 +2,7 @@ import express from 'express';
 import prisma from '../prismaClient.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js'
 import { Permission } from '@prisma/client';
-import { io } from '../app.js';
+import { getIO } from '../socket.js';
 
 const documentRouter = express.Router();
 
@@ -193,6 +193,7 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
     });
 
     // Broadcast changes via WebSocket
+    const io = getIO();
     io.to(req.params.id).emit('document-update', updatedDoc.content);
 
     res.json(updatedDoc);
