@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'http://localhost';
 httpServer.listen(PORT, () => {
     console.log(`Server running at ${HOST}:${PORT}`);
+    console.log("Websocket endpoint: ws://localhost:3000/socket.io/");
 });
 
 // Graceful shut down mech

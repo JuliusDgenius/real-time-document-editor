@@ -4,8 +4,12 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./app.js"
+    "start": "nodemon ./server.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --watchAll",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --coverage",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --testPathPattern=unit",
+    "test:integration": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --testPathPattern=integration"
   },
   "prisma": {
     "seed": "node ./prisma/seed"
@@ -28,6 +32,12 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "babel-jest": "^29.7.0",
+    "dotenv": "^16.4.7",
+    "jest-esm-transformer": "^1.0.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.0"
   }
 }

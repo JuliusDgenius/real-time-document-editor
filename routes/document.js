@@ -3,6 +3,7 @@ import prisma from '../prismaClient.js';
 import { authenticateToken, authorizeRole } from '../middleware/auth.js'
 import { Permission } from '@prisma/client';
 import { getIO } from '../socket.js';
+import { version } from '@babel/core';
 
 const documentRouter = express.Router();
 
@@ -194,7 +195,14 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
 
     // Broadcast changes via WebSocket
     const io = getIO();
-    io.to(req.params.id).emit('document-update', updatedDoc.content);
+    const userId = req.user.id;
+    io.to(parseInt(req.params.id))
+    .except(`user_${userId}`) // exclude user from getting own broadcast
+    .emit('document-update', {
+      title: updatedDoc.title,
+      content: updatedDoc.content,
+      version: updatedDoc.version
+    });
 
     res.json(updatedDoc);
   });
