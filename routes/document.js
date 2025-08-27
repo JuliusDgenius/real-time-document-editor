@@ -302,6 +302,10 @@ documentRouter.get('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "No user found" });
     }
 
+    if (targetUser.id === req.user.id) {
+      return res.status(400).json({ error: "You cannot share a document with yourself." });
+    }
+
     // Create share
     await prisma.documentShare.upsert({
       where: {
