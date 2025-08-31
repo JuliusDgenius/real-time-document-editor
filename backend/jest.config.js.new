@@ -1,0 +1,13 @@
+export default {
+  testEnvironment: 'node',
+  transform: {},
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)$': '$1'
+  },
+  setupFilesAfterEnv: ['./__tests__/setup.js'],
+  testMatch: ['**/__tests__/**/*.test.js'],
+  verbose: true,
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true
+};
