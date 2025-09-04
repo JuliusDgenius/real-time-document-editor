@@ -102,7 +102,3 @@ The frontend communicates with the backend through RESTful APIs and WebSocket co
 2. Add TypeScript types for all new features
 3. Test your changes thoroughly
 4. Update documentation as needed
-
-## License
-
-This project is licensed under the ISC License.
